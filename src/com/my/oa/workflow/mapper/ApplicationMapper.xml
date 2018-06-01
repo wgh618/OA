@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.workflow.mapper.ApplicationMapper">
+
+    <insert id="add" parameterType="com.my.oa.workflow.domain.Application" useGeneratedKeys="true" keyProperty="id"
+            keyColumn="id">
+        INSERT INTO
+          oa_application (title, apply_time, status, applicant_id, template_id, path)
+      VALUES (#{title},#{applyTime},#{status},#{applicant.id},#{template.id},#{path});
+    </insert>
+
+    <select id="load" parameterType="int" resultMap="ApplicationMap">
+        SELECT
+        ac.id ,
+        ac.title ,
+        ac.apply_time ,
+        ac.status ,
+        ac.path,
+        u.id as user_id,
+        u.login_name,
+        u.password,
+        t.id as template_id,
+        t.name,
+        t.process_definition_key,
+        t.path as doc_path
+        FROM
+          oa_application ac
+        LEFT JOIN
+          oa_user u
+        ON
+         ac.applicant_id = u.id
+        LEFT JOIN
+          oa_template t
+        ON
+          ac.template_id = t.id
+        WHERE
+          ac.id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.my.oa.workflow.domain.Application">
+        UPDATE
+          oa_application
+        SET
+          title = #{title},
+          apply_time = #{applyTime},
+          status = #{status},
+          path = #{path},
+          applicant_id = #{applicant.id},
+          template_id = #{template.id}
+        WHERE
+        id = #{id}
+    </update>
+
+    <resultMap id="ApplicationMap" type="com.my.oa.workflow.domain.Application">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="applyTime" column="apply_time"/>
+        <result property="status" column="status"/>
+        <result property="path" column="path"/>
+        <association property="applicant" column="applicant_id"
+                     javaType="com.my.oa.system.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="loginName" column="login_name"/>
+            <result property="password" column="password"/>
+        </association>
+
+        <association property="template" column="template_id"
+                     javaType="com.my.oa.workflow.domain.Template">
+            <id property="id" column="template_id"/>
+            <result property="name" column="name"/>
+            <result property="processDefinitionKey" column="process_definition_key"/>
+            <result property="path" column="doc_path"/>
+        </association>
+    </resultMap>
+
+    <select id="findApplicationsByUserId" parameterType="int" resultMap="ApplicationMap">
+        SELECT
+        ac.id ,
+        ac.title ,
+        ac.apply_time ,
+        ac.status ,
+        ac.path,
+        u.id as user_id,
+        u.login_name,
+        u.password,
+        t.id as template_id,
+        t.name,
+        t.process_definition_key,
+        t.path as doc_path
+        FROM
+          oa_application ac
+        LEFT JOIN
+          oa_user u
+        ON
+         ac.applicant_id = u.id
+        LEFT JOIN
+          oa_template t
+        ON
+          ac.template_id = t.id
+        WHERE
+          applicant_id = #{id}
+    </select>
+
+    <resultMap id="ApplicationApproveMap" type="com.my.oa.workflow.domain.Approve">
+        <id property="id" column="id"/>
+        <result property="approveDate" column="approve_date"/>
+        <result property="isPassed" column="is_passed"/>
+        <result property="suggestion" column="suggestion"/>
+        <association property="approver" column="approer_id" javaType="com.my.oa.system.domain.User">
+            <result property="loginName" column="login_name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findApprovesByApplicationId" parameterType="int" resultMap="ApplicationApproveMap">
+        SELECT
+            a.id,
+            a.approve_date,
+            a.is_passed,
+            a.suggestion,
+            a.approver_id,
+            u.login_name
+        FROM
+          oa_approve a
+        LEFT JOIN
+          oa_user u
+        ON
+          a.approver_id = u.id
+        LEFT JOIN
+          oa_application ac
+        ON
+          a.application_id = ac.id
+        WHERE
+          a.application_id = #{id}
+        ORDER BY a.approve_date ASC
+    </select>
+
+</mapper>

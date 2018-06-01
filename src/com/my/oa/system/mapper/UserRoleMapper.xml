@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.system.mapper.UserRoleMapper">
+
+    <insert id="save" parameterType="com.my.oa.system.domain.UserRole">
+        INSERT
+        INTO
+            oa_user_role (user_id, role_id)
+        VALUES
+            (#{user.id},#{role.id})
+    </insert>
+
+    <delete id="delete" parameterType="com.my.oa.system.domain.UserRole">
+        DELETE
+        FROM
+          oa_user_role
+        WHERE
+          id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.my.oa.system.domain.UserRole">
+        UPDATE
+          oa_user_role
+        SET
+          user_id = #{user.id},
+          role_ = #{role.id},
+        WHERE
+          id = #{id}
+    </update>
+
+    <resultMap type="com.my.oa.system.domain.UserRole" id="UserRoleResultMap">
+        <id property="id" column="id"/>
+
+        <association property="user" column="user_id" javaType="com.my.oa.system.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="loginName" column="login_name"/>
+            <result property="password" column="password"/>
+            <result property="gender" column="gender"/>
+            <result property="telephone" column="telephone"/>
+            <result property="createdTime" column="created_time"/>
+            <result property="lastModified" column="last_modified"/>
+            <result property="description" column="user_description"/>
+        </association>
+
+        <association property="role" column="role_id" javaType="com.my.oa.system.domain.Role">
+            <id property="id" column="role_id"/>
+            <result property="name" column="name"/>
+            <result property="description" column="description"/>
+        </association>
+    </resultMap>
+
+    <select id="findByUserId" parameterType="int" resultMap="UserRoleResultMap">
+        SELECT
+          o.id,
+          o.user_id,
+          o.role_id,
+          u.login_name,
+          u.password,
+          u.gender,
+          u.email,
+          u.telephone,
+          u.created_time,
+          u.last_modified,
+          u.description as user_description,
+          r.name,
+          r.description
+        FROM
+          oa_user_role o
+        LEFT JOIN oa_user u
+        ON o.user_id = u.id
+        LEFT JOIN oa_role r
+        ON o.role_id = r.id
+        WHERE
+          u.id = #{id}
+    </select>
+
+    <select id="findByRoleId" parameterType="int" resultMap="UserRoleResultMap">
+        SELECT
+            o.id,
+            o.user_id,
+            o.role_id,
+            u.login_name,
+            u.password,
+            u.gender,
+            u.email,
+            u.telephone,
+            u.created_time,
+            u.last_modified,
+            u.description as user_description,
+            r.name,
+            r.description
+        FROM
+         oa_user_role o
+        LEFT JOIN oa_user u
+        ON o.user_id = u.id
+        LEFT JOIN oa_role r
+        ON o.role_id = r.id
+        WHERE
+          r.id = #{id}
+    </select>
+</mapper>

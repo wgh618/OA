@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.forum.mapper.ReplyMapper">
+
+    <sql id="replyColumnClause">
+        id,
+        content,
+        faceIcon,
+        post_time as postTime,
+        ipAddr
+    </sql>
+
+    <!--返回主键值-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.my.oa.forum.domain.Reply">
+        INSERT
+        INTO
+            oa_reply
+            (content,faceIcon,post_time,ipAddr,author_id,topic_id)
+        VALUES
+            (#{content},#{faceIcon},#{postTime},#{ipAddr},#{author.id},#{topic.id})
+    </insert>
+
+    <delete id="delete" parameterType="com.my.oa.forum.domain.Reply">
+        DELETE
+        FROM
+          oa_reply
+        WHERE
+          id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.my.oa.forum.domain.Reply">
+        UPDATE
+          oa_reply
+        SET
+          content = #{content},
+          faceIcon = #{faceIcon},
+          post_time = #{postTime},
+          ipAddr = #{ipAddr},
+          author_id = #{author.id},
+          topic_id = #{topic.id},
+        WHERE
+          id = #{id}
+    </update>
+
+    <select id="load" parameterType="int" resultType="com.my.oa.forum.domain.Reply">
+        SELECT
+        <include refid="replyColumnClause"/>
+        FROM
+        oa_reply
+        WHERE
+        id = #{id}
+    </select>
+
+    <resultMap type="com.my.oa.forum.domain.Reply" id="ReplyResultMap">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="faceIcon" column="faceIcon"/>
+        <result property="ipAddr" column="ipAddr"/>
+        <result property="postTime" column="post_time"/>
+
+        <association property="author" column="author_id" javaType="com.my.oa.system.domain.User">
+            <id property="id" column="author_id"/>
+            <result property="loginName" column="login_name"/>
+        </association>
+    </resultMap>
+
+    <select id="get" parameterType="int" resultMap="ReplyResultMap">
+        SELECT
+            r.id,
+            r.content,
+            r.faceIcon,
+            r.ipAddr,
+            r.post_time,
+            r.author_id,
+            u.login_name
+        FROM oa_reply r
+        LEFT JOIN oa_user u
+        on r.author_id = u.id
+        WHERE r.id = #{id}
+    </select>
+
+    <select id="findByTopicId" parameterType="int" resultMap="ReplyResultMap">
+        SELECT
+            r.id,
+            r.content,
+            r.faceIcon,
+            r.ipAddr,
+            r.post_time,
+            r.author_id,
+            u.login_name
+        FROM oa_reply r
+        LEFT JOIN oa_user u
+        on r.author_id = u.id
+        WHERE r.topic_id = #{id}
+        ORDER by r.post_time asc
+    </select>
+</mapper>

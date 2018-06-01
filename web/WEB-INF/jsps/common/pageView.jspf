@@ -1,0 +1,43 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
+<%@ include file="../common/taglib.jsp" %>
+
+<div id=PageSelectorBar>
+	<div id=PageSelectorMemo>
+		页次：${pagebean.currentPage}/${pagebean.pageCount}页 &nbsp;
+		每页显示：${pagebean.pageSize }条 &nbsp;
+		总记录数：${pagebean.recordCount }条
+	</div>
+	<div id=PageSelectorSelectorArea>
+	
+		<a href="javascript: gotoPage(1)" title="首页" style="cursor: hand;">
+			<img src="${pageContext.request.contextPath}/style/blue/images/pageSelector/firstPage.png"/>
+		</a>
+
+		<c:forEach begin="${pagebean.beginPageIndex}" end="${pagebean.endPageIndex}" var="num">
+			<c:choose>
+				<c:when test="${pagebean.currentPage eq num}">
+					<span class="PageSelectorNum PageSelectorSelected">${num}</span>
+				</c:when>
+				<c:otherwise>
+					<span class="PageSelectorNum" style="cursor: hand;" onClick="gotoPage(${num});">${num}</span>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+		
+		<a href="javascript: gotoPage(${pagebean.pageCount})" title="尾页" style="cursor: hand;">
+			<img src="${pageContext.request.contextPath}/style/blue/images/pageSelector/lastPage.png"/>
+		</a>
+		
+		转到：
+		<select id="pn" onchange="gotoPage(this.value)">
+			<c:forEach begin="1" end="${pagebean.pageCount}" var="num">
+				<option value="${num}">${num}</option>
+			</c:forEach>
+		</select>		
+		<script type="text/javascript">
+			// 回显页码
+			$("#pn").val(${pagebean.currentPage});
+		</script>
+		
+	</div>
+</div>

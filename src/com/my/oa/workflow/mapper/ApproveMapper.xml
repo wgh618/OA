@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.workflow.mapper.ApproveMapper">
+
+    <insert id="insert" parameterType="com.my.oa.workflow.domain.Approve">
+        INSERT INTO
+        oa_approve (approve_date, is_passed, approver_id, application_id, suggestion)
+        VALUES
+        (#{approveDate},#{isPassed},#{approver.id},#{application.id},#{suggestion})
+    </insert>
+
+</mapper>

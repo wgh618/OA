@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.forum.mapper.TopicMapper">
+
+    <sql id="topicColumnClause">
+        id,
+        title,
+        content,
+        faceIcon,
+        post_time as postTime,
+        ipAddr,
+        type,
+        last_update_time as lastUpdateTime,
+        replyCount
+    </sql>
+
+    <!--返回主键值-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.my.oa.forum.domain.Topic">
+        INSERT
+        INTO
+            oa_topic
+            (title,content,faceIcon,post_time,ipAddr,author_id,forum_id,type,last_update_time,replyCount,last_reply_id)
+        VALUES
+            (#{title},#{content},#{faceIcon},#{postTime},#{ipAddr},#{author.id},#{forum.id},#{type},
+            #{lastUpdateTime},#{replyCount},#{lastReply.id})
+    </insert>
+
+    <delete id="delete" parameterType="com.my.oa.forum.domain.Topic">
+        DELETE
+        FROM
+          oa_topic
+        WHERE
+          id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.my.oa.forum.domain.Topic">
+        UPDATE
+          oa_topic
+        SET
+          title = #{title},
+          content = #{content},
+          faceIcon = #{faceIcon},
+          post_time = #{postTime},
+          ipAddr = #{ipAddr},
+          author_id = #{author.id},
+          forum_id = #{forum.id},
+          type = #{type},
+          last_update_time = #{lastUpdateTime},
+          replyCount = #{replyCount},
+          last_reply_id = #{lastReply.id}
+        WHERE
+          id = #{id}
+    </update>
+
+    <resultMap type="com.my.oa.forum.domain.Topic" id="TopicResultMap2">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="faceIcon" column="faceIcon"/>
+        <result property="ipAddr" column="ipAddr"/>
+        <result property="postTime" column="post_time"/>
+        <result property="replyCount" column="replyCount"/>
+        <result property="lastUpdateTime" column="last_update_time"/>
+        <result property="type" column="type"/>
+
+        <association property="author" column="author_id" javaType="com.my.oa.system.domain.User">
+            <id property="id" column="author_id"/>
+            <result property="loginName" column="login_name"/>
+        </association>
+
+        <association property="forum" column="forum_id" javaType="com.my.oa.forum.domain.Forum">
+            <id property="id" column="forum_id"/>
+        </association>
+    </resultMap>
+
+    <select id="load" parameterType="int" resultMap="TopicResultMap2">
+        SELECT
+          t.id,
+          t.title,
+          t.content,
+          t.faceIcon,
+          t.ipAddr,
+          t.post_time,
+          t.replyCount,
+          t.last_update_time,
+          t.type,
+          t.forum_id,
+          t.author_id,
+          u.login_name
+        FROM oa_topic t
+        LEFT JOIN oa_user u
+        on t.author_id = u.id
+        LEFT JOIN oa_forum f
+        on t.forum_id = f.id
+        WHERE t.id = #{id}
+    </select>
+
+    <resultMap type="com.my.oa.forum.domain.Topic" id="TopicResultMap">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="faceIcon" column="faceIcon"/>
+        <result property="ipAddr" column="ipAddr"/>
+        <result property="postTime" column="post_time"/>
+        <result property="replyCount" column="replyCount"/>
+        <result property="lastUpdateTime" column="last_update_time"/>
+        <result property="type" column="type"/>
+
+        <association property="author" column="author_id" javaType="com.my.oa.system.domain.User">
+            <id property="id" column="author_id"/>
+            <result property="loginName" column="login_name"/>
+        </association>
+    </resultMap>
+
+    <select id="get" parameterType="int" resultMap="TopicResultMap">
+      SELECT
+        t.id,
+        t.title,
+        t.content,
+        t.faceIcon,
+        t.ipAddr,
+        t.post_time,
+        t.replyCount,
+        t.last_update_time,
+        t.type,
+        t.author_id,
+        u.login_name
+      FROM oa_topic t
+      LEFT JOIN oa_user u
+      on t.author_id = u.id
+      WHERE t.id = #{id}
+    </select>
+
+
+    <resultMap type="com.my.oa.forum.domain.Topic" id="TopicResultMap1">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="faceIcon" column="faceIcon"/>
+        <result property="ipAddr" column="ipAddr"/>
+        <result property="postTime" column="post_time"/>
+        <result property="replyCount" column="replyCount"/>
+        <result property="lastUpdateTime" column="last_update_time"/>
+        <result property="type" column="type"/>
+
+        <association property="author" column="author_id" javaType="com.my.oa.system.domain.User">
+            <id property="id" column="author_id"/>
+            <result property="loginName" column="login_name"/>
+        </association>
+
+        <association property="lastReply" column="last_reply_id" select="com.my.oa.forum.mapper.ReplyMapper.get">
+        </association>
+    </resultMap>
+
+    <select id="findByForumId" parameterType="int" resultMap="TopicResultMap1">
+        SELECT
+          t.id,
+          t.title,
+          t.content,
+          t.faceIcon,
+          t.ipAddr,
+          t.post_time,
+          t.replyCount,
+          t.last_update_time,
+          t.last_reply_id,
+          t.type,
+          t.author_id,
+          u.login_name
+        FROM oa_topic t
+        LEFT JOIN oa_user u
+        on t.author_id = u.id
+        LEFT JOIN oa_reply r
+        on t.last_reply_id = r.id
+        WHERE t.forum_id = #{id}
+        ORDER BY (CASE t.type WHEN 2 THEN 2 ELSE 0 end) desc ,t.last_update_time DESC
+    </select>
+</mapper>

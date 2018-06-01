@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.system.mapper.RoleMapper">
+    
+    <sql id="roleColumnClause">
+        id,
+        name,
+        description
+    </sql>
+
+    <insert id="save" parameterType="com.my.oa.system.domain.Role">
+        INSERT
+        INTO
+            oa_role (name,description)
+        VALUES
+            (#{name},#{description})
+    </insert>
+
+    <delete id="delete" parameterType="com.my.oa.system.domain.Role">
+        DELETE
+        FROM
+          oa_role
+        WHERE
+          id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.my.oa.system.domain.Role">
+        UPDATE
+          oa_role
+        SET
+          name = #{name},
+          description = #{description}
+        WHERE
+          id = #{id}
+    </update>
+    
+    <select id="queryAll" resultType="com.my.oa.system.domain.Role">
+        SELECT
+          <include refid="roleColumnClause"/>
+        FROM
+          oa_role
+    </select>
+
+    <select id="load" parameterType="int" resultType="com.my.oa.system.domain.Role">
+        SELECT
+          <include refid="roleColumnClause"/>
+        FROM
+          oa_role
+        WHERE
+          id = #{id}
+    </select>
+
+    <select id="findRoleByName" parameterType="string" resultType="com.my.oa.system.domain.Role">
+        SELECT
+          <include refid="roleColumnClause"/>
+        FROM
+          oa_role
+        WHERE
+          name = #{name}
+    </select>
+</mapper>

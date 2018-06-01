@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.my.oa.system.mapper.DepartmentMapper">
+    
+    <sql id="departmentColumnClause">
+        id,
+        name,
+        description,
+        parent_id
+    </sql>
+
+    <resultMap type="com.my.oa.system.domain.Department" id="DepartmentResultMap">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <association property="parent" column="parent_id" javaType="com.my.oa.system.domain.Department">
+            <id property="id" column="parent_id"/>
+            <result property="name" column="parent_name"/>
+            <result property="description" column="parent_description"/>
+        </association>
+    </resultMap>
+
+    <insert id="save" parameterType="com.my.oa.system.domain.Department">
+        INSERT
+        INTO
+            oa_department (name,description,parent_id)
+        VALUES
+            (#{name},#{description},#{parent.id})
+    </insert>
+
+    <delete id="delete" parameterType="com.my.oa.system.domain.Department">
+        DELETE
+        FROM
+          oa_department
+        WHERE
+          id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.my.oa.system.domain.Department">
+        UPDATE
+          oa_department
+        SET
+          name = #{name},
+          description = #{description},
+          parent_id = #{parent.id}
+        WHERE
+          id = #{id}
+    </update>
+    
+    <select id="queryAll" resultMap="DepartmentResultMap">
+        SELECT
+          a.id,
+          a.name,
+          a.description,
+          a.parent_id,
+          b.name as parent_name,
+          b.description as parent_description
+        FROM
+          oa_department a
+        LEFT JOIN
+          oa_department b
+        on a.parent_id = b.id
+    </select>
+
+    <select id="load" parameterType="int" resultMap="DepartmentResultMap">
+        SELECT
+          a.id,
+          a.name,
+          a.description,
+          a.parent_id,
+          b.name as parent_name,
+          b.description as parent_description
+        FROM
+          oa_department a
+        LEFT JOIN
+          oa_department b
+        on a.parent_id = b.id
+        WHERE
+          a.id = #{id}
+    </select>
+
+    <!--查找部门和旗下所有子部门-->
+    <resultMap type="com.my.oa.system.domain.Department" id="DepartmentResultMap1">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <collection property="children" column="child_id" ofType="com.my.oa.system.domain.Department">
+            <id property="id" column="child_id"/>
+            <result property="name" column="child_name"/>
+            <result property="description" column="child_description"/>
+        </collection>
+    </resultMap>
+    <select id="loadAndChildren" parameterType="int" resultMap="DepartmentResultMap1">
+    SELECT
+        a.id,
+        a.name,
+        a.description,
+        b.id as child_id,
+        b.name as child_name,
+        b.description as child_description
+    FROM
+      oa_department a
+    LEFT JOIN
+      oa_department b
+    on a.id = b.parent_id
+    WHERE
+      a.id = #{id}
+    </select>
+
+</mapper>
