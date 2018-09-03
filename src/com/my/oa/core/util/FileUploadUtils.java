@@ -18,7 +18,7 @@ import java.util.UUID;
 public class FileUploadUtils {
 
     public static File uploadFile(MultipartFile resource, HttpServletRequest request) throws IOException {
-        String realPath = request.getRealPath("/template");
+        String realPath = request.getSession().getServletContext().getRealPath("/template");
         File file = new File(realPath);
         if (!file.exists()) {
             file.mkdirs();

@@ -71,7 +71,7 @@ public class ApplicationController {
      */
     @RequestMapping(value = "/submit/{id}", method = RequestMethod.GET)
     public String submit(@PathVariable Integer id, Model model) {
-        List<UserRole> userRoleList = userRoleService.findUserRoleByRoleId(3);
+        List<UserRole> userRoleList = userRoleService.findUserRoleByRoleId(id);
 
         model.addAttribute("userRoleList", userRoleList);
         model.addAttribute("templateId", id);
